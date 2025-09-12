@@ -1,7 +1,7 @@
 package roundzero
 
 /*
-二分找到第一个比他小的就行
+二分找到第一个比他小的就行，ind 注意二分荣誉判断法，
 */
 func insert(intervals [][]int, newInterval []int) [][]int {
 	l := len(intervals)
