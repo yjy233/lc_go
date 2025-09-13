@@ -1,8 +1,13 @@
 package roundzero
 
+import "fmt"
+
 func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	var res ListNode = ListNode{}
 	tmp := &res
+	fmt.Println("xxx")
+	a := append([]int{}, 3)
+	fmt.Println(a)
 
 	jin := 0
 	for l1 != nil || l2 != nil {
