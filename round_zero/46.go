@@ -1,40 +1,38 @@
 package roundzero
 
-import "math"
+import "sort"
 
 func permute(nums []int) [][]int {
-	l := len(nums)
-	resN := math.Pow(2.0, float64(l))
-	res := make([][]int, 0, int(resN))
-	use := make([]bool, l)
-	path := make([]int, 0, l)
+	sort.Slice(nums, func(i, j int) bool {
+		return nums[i] < nums[j]
+	})
 
-	helperPermute(&res, &use, &path, &nums)
+	path := make([]int, 0, len(nums))
+	res := make([][]int, 0, 100)
+	use := make([]bool, len(nums))
+	helper46(nums, use, &path, &res)
 	return res
 }
 
-func helperPermute(res *[][]int, use *[]bool, path *[]int, nums *[]int) {
-
-	if len(*path) == len(*nums) {
-		//fmt.Println("0-0000000")
-		tmpPath := make([]int, len(*path))
-		//fmt.Println(tmpPath)
-		copy(tmpPath, *path)
-		*res = append(*res, tmpPath)
+func helper46(nums []int, use []bool, path *[]int, res *[][]int) {
+	if len(*path) == len(nums) {
+		tmp := make([]int, len(nums))
+		copy(tmp, *path)
+		(*res) = append((*res), tmp)
 		return
 	}
 
-	for i := 0; i < len(*nums); i++ {
-		if (*use)[i] {
+	for i := 0; i < len(nums); i++ {
+		if use[i] || (i > 0 && nums[i] == nums[i-1] && !use[i-1]) {
 			continue
 		}
 
-		//fmt.Println("ind ",i)
+		use[i] = true
+		(*path) = append((*path), nums[i])
 
-		(*use)[i] = true
-		(*path) = append((*path), (*nums)[i])
-		helperPermute(res, use, path, nums)
+		helper46(nums, use, path, res)
+		use[i] = false
 		(*path) = (*path)[:len(*path)-1]
-		(*use)[i] = false
 	}
+
 }

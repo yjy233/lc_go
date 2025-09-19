@@ -1,29 +1,33 @@
 package roundzero
 
 func combine(n int, k int) [][]int {
-	res := make([][]int, 0, k)
-	nums := make([]int, 0, k)
+	use := make([]bool, n+1)
 
-	helperCombine77(&nums, 1, &res, k, n)
+	path := make([]int, 0, k)
+
+	res := make([][]int, 0, 256)
+	helper77(&path, use, 1, &res, n, k)
 	return res
+
 }
 
-func helperCombine77(nums *[]int, ind int, res *[][]int, k int, n int) {
-
-	if len(*nums) == k {
+func helper77(path *[]int, use []bool, ind int, res *[][]int, n, k int) {
+	if len(*path) == k {
 		tmp := make([]int, k)
-		copy(tmp, *nums)
+		copy(tmp, *path)
 		(*res) = append((*res), tmp)
 		return
 	}
 
-	if ind > n {
-		return
+	for i := ind; i <= n; i++ {
+		if use[i] {
+			continue
+		}
+
+		(*path) = append((*path), i)
+		use[i] = true
+		helper77(path, use, i+1, res, n, k)
+		use[i] = false
+		(*path) = (*path)[:len(*path)-1]
 	}
-
-	helperCombine77(nums, ind+1, res, k, n)
-
-	(*nums) = append((*nums), ind)
-	helperCombine77(nums, ind+1, res, k, n)
-	(*nums) = (*nums)[0 : len(*nums)-1]
 }

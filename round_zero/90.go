@@ -1,57 +1,51 @@
 package roundzero
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 func subsetsWithDup(nums []int) [][]int {
-	l := len(nums)
 
 	sort.Slice(nums, func(i, j int) bool {
 		return nums[i] < nums[j]
 	})
+	res := make([][]int, 0, 1<<10)
+	tmp := make([][]int, 0, 1<<10)
 
-	res := make([][]int, 0, 1<<l)
-	tmp := make([][]int, 0, 1<<l)
 	res = append(res, []int{})
 
-	for i := 0; i < l; i++ {
-		cnt := 0
-		for j := i - 1; j >= 0; j-- {
-			if nums[j] != nums[i] {
-				break
-			}
+	for i := range nums {
+		fmt.Println(res)
+		for _, item := range res {
+			tmp = append(tmp, item)
 
-			cnt++
-		}
+			if i > 0 && nums[i] == nums[i-1] {
 
-		for _, terms := range res {
-
-			tmp = append(tmp, terms)
-
-			need := true
-			if cnt != 0 {
-				tCnt := 0
-				for j := len(terms) - 1; j >= 0; j-- {
-					if terms[j] != nums[i] {
-						break
-					}
-
-					tCnt++
+				if len(item) == 0 {
+					continue
 				}
 
-				need = (tCnt >= cnt)
+				if item[len(item)-1] != i-1 {
+					continue
+				}
 			}
 
-			if need {
-				newTerms := make([]int, len(terms), len(terms)+1)
-				copy(newTerms, terms)
-				newTerms = append(newTerms, nums[i])
-				tmp = append(tmp, newTerms)
-			}
+			newItem := make([]int, len(item), len(item)+1)
+			copy(newItem, item)
+			newItem = append(newItem, i)
 
+			tmp = append(tmp, newItem)
 		}
 
-		tmp, res = res, tmp
+		res, tmp = tmp, res
 		tmp = tmp[:0]
+	}
+
+	for i := range res {
+		for j := range res[i] {
+			res[i][j] = nums[res[i][j]]
+		}
 	}
 	return res
 }

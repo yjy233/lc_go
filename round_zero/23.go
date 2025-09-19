@@ -1,67 +1,61 @@
 package roundzero
 
-import (
-	"container/heap"
-	"fmt"
-)
+import "container/heap"
 
-/*
-本题关键，就是 pop push 要指针 * 一定要注意
-*/
 type hp []*ListNode
 
-func (h hp) Len() int {
-	return len(h)
+func (this hp) Len() int {
+	return len(this)
 }
 
-func (h hp) Less(i, j int) bool {
-	return h[i].Val < h[j].Val
+func (this hp) Less(i, j int) bool {
+	return (this)[i].Val < (this)[j].Val
 }
 
-func (h hp) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
+func (this hp) Swap(i, j int) {
+	(this)[i], (this)[j] = (this)[j], (this)[i]
 }
 
-func (h *hp) Push(x any) {
-	*h = append(*h, x.(*ListNode))
+func (this *hp) Push(x any) {
+	(*this) = append((*this), x.(*ListNode))
 }
 
-func (h *hp) Pop() any {
-	tmp := (*h)[len(*h)-1]
-	*h = (*h)[:len(*h)-1]
-	return tmp
+func (this *hp) Pop() any {
+	v := (*this)[len(*this)-1]
+	(*this) = (*this)[:len(*this)-1]
+	return v
 }
 
 func mergeKLists(lists []*ListNode) *ListNode {
+
+	newList := &hp{}
+	for _, i := range lists {
+		if i == nil {
+			continue
+		}
+
+		(*newList) = append((*newList), i)
+	}
+	heap.Init(newList)
 	res := &ListNode{}
-	ptr := res
+	tmp := res
 
-	h := hp{}
-	for _, item := range lists {
-		if item != nil {
-			h = append(h, item)
+	for len(*newList) > 0 {
+		ptr := heap.Pop(newList)
+
+		if ptr == nil {
+			continue
+		}
+
+		ptrNode := ptr.(*ListNode)
+		tmp.Next = ptrNode
+		ptrNode = ptrNode.Next
+		tmp = tmp.Next
+		tmp.Next = nil
+
+		if ptrNode != nil {
+			heap.Push(newList, ptrNode)
 		}
 	}
-	fmt.Println("hjiwfwefwef we")
-	heap.Init(&h)
-	fmt.Println("-----------------")
-	for len(h) > 0 {
-		ln := heap.Pop(&h)
-		lnp, ok := ln.(*ListNode)
-
-		if ok && lnp != nil {
-			fmt.Println(lnp.Val)
-			ptr.Next = lnp
-			lnp = lnp.Next
-			ptr = ptr.Next
-			ptr.Next = nil
-
-			if lnp != nil {
-				fmt.Println(lnp.Val)
-				heap.Push(&h, lnp)
-			}
-		}
-	}
-
 	return res.Next
 }

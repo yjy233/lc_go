@@ -8,36 +8,37 @@ func combinationSum(candidates []int, target int) [][]int {
 		return candidates[i] < candidates[j]
 	})
 
-	res := [][]int{}
-	path := []int{}
-	helperCombine(candidates, 0, target, &path, &res)
+	res := make([][]int, 0)
+	path := make([]int, 0, len(candidates)*5)
+	helper39(&candidates, 0, &res, &path, target)
 	return res
 }
 
-func helperCombine(nums []int, ind int, target int, path *[]int, res *[][]int) {
-	//fmt.Println(ind, target, (*path))
+func helper39(nums *[]int, ind int, res *[][]int, path *[]int, target int) {
 	if target == 0 {
-		newPath := make([]int, len(*path))
-		copy(newPath, (*path))
+		newTmp := make([]int, len(*path))
+		copy(newTmp, *path)
 
-		(*res) = append((*res), newPath)
+		(*res) = append((*res), newTmp)
 		return
 	}
 
-	if ind >= len(nums) || target < 0 {
+	if target < 0 {
 		return
 	}
 
-	for i := ind; i < len(nums); i++ {
-		//fmt.Println("---",i,nums[i])
-		if nums[i] > target {
+	if ind >= len(*nums) || target < (*nums)[ind] {
+		return
+	}
+
+	for i := ind; i < len(*nums); i++ {
+		if target < (*nums)[ind] {
 			break
 		}
 
-		(*path) = append((*path), nums[i])
-		helperCombine(nums, i, target-nums[i], path, res)
-
-		(*path) = (*path)[:len(*path)-1]
-
+		(*path) = append((*path), (*nums)[i])
+		helper39(nums, ind, res, path, target-(*nums)[i])
+		(*path) = (*path)[:len(*nums)-1]
 	}
+
 }
