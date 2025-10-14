@@ -1,42 +1,52 @@
 package roundzero
 
-func trap(height []int) int {
-	res := 0
+import "fmt"
 
-	st := make([]int, 0)
-	push := func(i int) {
-		st = append(st, i)
+func trap(height []int) int {
+	st := make([]int, 0, len(height))
+
+	push := func(v int) {
+		st = append(st, v)
 	}
 
 	pop := func() int {
+		if len(st) <= 0 {
+			return -1
+		}
+
 		v := st[len(st)-1]
 		st = st[:len(st)-1]
 		return v
 	}
 
+	empty := func() bool {
+		return len(st) == 0
+	}
 	getLast := func() int {
+		if empty() {
+			return -1
+		}
 		return st[len(st)-1]
 	}
 
-	isEmpty := func() bool {
-		return len(st) <= 0
-	}
-
-	for i := 0; i < len(height); i++ {
-		for !isEmpty() && height[getLast()] <= height[i] {
-			bottom := height[pop()]
-			if isEmpty() {
+	res := 0
+	i := 0
+	for i < len(height) {
+		fmt.Println(i, res)
+		for !empty() && height[getLast()] < height[i] {
+			low := pop()
+			if empty() {
 				break
 			}
 
-			h := max(0, min(height[i], height[getLast()])-bottom)
-			w := i - getLast() - 1
-
-			res += h * w
+			l := getLast()
+			h := min(height[l], height[i]) - height[low]
+			//fmt.Println(i, i-l, h, "----")
+			res += max(0, h*(i-l-1))
 		}
 
 		push(i)
+		i++
 	}
-
 	return res
 }

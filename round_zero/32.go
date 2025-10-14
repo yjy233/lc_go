@@ -1,47 +1,49 @@
 package roundzero
 
-type IntStack []int
-
-func (s *IntStack) Pop() int {
-	if len(*s) == 0 {
-		return -1
-	}
-
-	v := (*s)[len(*s)-1]
-
-	(*s) = (*s)[:len(*s)-1]
-	return v
-}
-
-func (s *IntStack) Push(c int) {
-	(*s) = append((*s), c)
-}
-
 func longestValidParentheses(s string) int {
 
+	const NoMatch = -1
 	l := len(s)
+	st := make([]int, 0, l)
+
+	pop := func() int {
+		tmpL := len(st)
+		if tmpL <= 0 {
+			return NoMatch
+		}
+
+		v := st[tmpL-1]
+		st = st[:tmpL-1]
+		return v
+	}
+
+	push := func(x int) {
+		st = append(st, x)
+	}
 
 	dp := make([]int, l)
+	for i := range s {
+		c := s[i]
+
+		if c == '(' {
+			push(i)
+			continue
+		}
+
+		left := pop()
+		if left == NoMatch {
+			continue
+		}
+
+		dp[i] = i - left + 1
+		if left > 0 {
+			dp[i] += dp[left-1]
+		}
+	}
 
 	res := 0
-	st := (IntStack)(make([]int, 0, l))
-	for i := 0; i < l; i++ {
-		if s[i] == '(' {
-			st.Push(i)
-			continue
-		}
-
-		fromInd := st.Pop()
-		if fromInd == -1 {
-			continue
-		}
-
-		dp[i] = i - fromInd + 1
-		if fromInd > 0 {
-			dp[i] += dp[fromInd-1]
-		}
-
-		res = max(res, dp[i])
+	for _, i := range dp {
+		res = max(res, i)
 	}
 	return res
 }

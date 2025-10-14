@@ -1,43 +1,41 @@
 package roundzero
 
 func minSubArrayLen(target int, nums []int) int {
-	res := -1
 
-	setRes := func(r int) {
-		if res == -1 {
-			res = r
-			return
-		}
-
-		res = min(res, r)
+	s := 0
+	for _, i := range nums {
+		s += i
 	}
 
-	sum := int64(0)
-	for i := range nums {
-		sum += int64(nums[i])
+	if s < target {
+		return -1
+	}
+	res := len(nums)
+
+	l := 0
+	r := 0
+	s = nums[0]
+	if s >= target {
+		return 1
 	}
 
-	if sum < int64(target) {
-		return 0
-	}
+	for r < len(nums) {
+		if l <= r && s >= target {
+			res = min(res, r-l+1)
 
-	res = len(nums)
-
-	l, r := 0, len(nums)-1
-	for l <= r {
-		if nums[l] <= nums[r] {
-			if sum-int64(nums[l]) < int64(target) {
-				break
-			}
+			s -= nums[l]
 			l++
-		} else {
-			if sum-int64(nums[r]) < int64(target) {
-				break
-			}
-			r--
+			continue
 		}
 
-		setRes(r - l + 1)
+		r++
+		if r >= len(nums) {
+			break
+		}
+		s += nums[r]
+		if s >= target {
+			res = min(res, r-l+1)
+		}
 	}
 	return res
 }

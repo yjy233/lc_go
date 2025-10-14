@@ -1,65 +1,65 @@
 package roundzero
 
-import "sort"
+import (
+	"sort"
+)
 
+/*
+
+急的ind
+*/
 func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 	l := len(nums1) + len(nums2)
+	//fmt.Println(l)
 
 	if l%2 == 1 {
-		return helper(nums1, nums2, l/2)
+		return float64(helper4(nums1, nums2, l/2))
 	}
 
-	f1 := helper(nums1, nums2, l/2)
-	f2 := helper(nums1, nums2, l/2-1)
-
-	return (f1 + f2) / 2.0
+	f0 := float64(helper4(nums1, nums2, l/2-1))
+	f1 := float64(helper4(nums1, nums2, l/2))
+	//fmt.Println(f0, f1)
+	return (f0 + f1) / 2
 }
 
-func helper(nums1 []int, nums2 []int, ind int) float64 {
-	//fmt.Println(nums1, nums2, ind)
-	if len(nums1) == 0 {
-		return float64(nums2[ind])
+func helper4(nums1, nums2 []int, ind int) int {
+	l0 := len(nums1)
+	l1 := len(nums2)
+
+	if l0 == 0 {
+		return nums2[ind]
+	}
+	if l1 == 0 {
+		return nums1[ind]
 	}
 
-	if len(nums2) == 0 {
-		return float64(nums1[ind])
-	}
-
-	if ind == 0 {
-		return float64(min(nums1[0], nums2[0]))
+	if ind <= 0 {
+		return min(nums1[0], nums2[0])
 	}
 
 	if ind == 1 {
-		l := []int{nums1[0], nums2[0]}
-		if len(nums1) > 1 {
-			l = append(l, nums1[1])
+		tmp := make([]int, 0, 4)
+		tmp = append(tmp, nums1[0])
+		tmp = append(tmp, nums2[0])
+		if l0 > 1 {
+			tmp = append(tmp, nums1[1])
 		}
-		if len(nums2) > 1 {
-			l = append(l, nums2[1])
+		if l1 > 1 {
+			tmp = append(tmp, nums2[1])
 		}
 
-		sort.Slice(l, func(i, j int) bool {
-			return l[i] < l[j]
+		sort.Slice(tmp, func(i, j int) bool {
+			return tmp[i] < tmp[j]
 		})
-		return float64(l[1])
+		return tmp[1]
 	}
 
-	span := min(ind/2, len(nums1)/2)
-	span = min(span, len(nums2)/2)
-
-	if span == 0 {
-		if nums1[0] < nums2[0] {
-			nums1 = nums1[1:]
-		} else {
-			nums2 = nums2[1:]
-		}
-
-		return helper(nums1, nums2, ind-1)
+	newInd := max(min(l1/2-1, l0/2-1, ind/2), 0)
+	if nums1[newInd] < nums2[newInd] {
+		newInd = max(newInd, 1)
+		return helper4(nums1[newInd:], nums2, ind-newInd)
 	}
 
-	if nums1[span] < nums2[span] {
-		return helper(nums1[span:], nums2, ind-span)
-	}
-
-	return helper(nums1, nums2[span:], ind-span)
+	newInd = max(newInd, 1)
+	return helper4(nums1, nums2[newInd:], ind-newInd)
 }

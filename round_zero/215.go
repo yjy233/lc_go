@@ -1,6 +1,8 @@
 package roundzero
 
-import "container/heap"
+import (
+	"container/heap"
+)
 
 type hip []int
 
@@ -42,5 +44,7 @@ func findKthLargest(nums []int, k int) int {
 		val = heap.Pop(&hp).(int)
 		k--
 	}
+
+	//runtime.GOMAXPROCS()
 	return val
 }

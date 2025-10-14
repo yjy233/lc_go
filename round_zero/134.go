@@ -3,24 +3,27 @@ package roundzero
 func canCompleteCircuit(gas []int, cost []int) int {
 	l := len(gas)
 
-	total := 0
-	cur := 0
 	res := 0
-	for i := range l {
-		c := gas[i] - cost[i]
+	tmp := 0
+	idx := 0
+	for i := range gas {
 
-		total += c
-		cur += c
-		if cur < 0 {
-			cur = 0
-			res = i + 1
+		res += gas[i]
+		res -= cost[i]
+
+		tmp += gas[i]
+		tmp -= cost[i]
+
+		if tmp < 0 {
+			tmp = 0
+
+			idx = (i + 1) % l
 		}
 	}
 
-	if total < 0 {
+	if res < 0 {
 		return -1
 	}
-
-	return res % l
+	return idx
 
 }

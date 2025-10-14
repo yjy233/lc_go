@@ -1,124 +1,118 @@
 package roundzero
 
-/*
-二分找到第一个比他小的就行，ind 注意二分荣誉判断法，
-*/
 func insert(intervals [][]int, newInterval []int) [][]int {
-	l := len(intervals)
-	if l == 0 {
+	if len(intervals) == 0 {
 		return [][]int{newInterval}
 	}
-
-	//fmt.Println("0----")
-	lowerInd := findBiggerBoundInsert(intervals, newInterval[0])
-	//fmt.Println("1----")
-	res := make([][]int, 0, l+1)
-
-	if lowerInd > 0 {
-		res = append(res, intervals[:lowerInd]...)
+	if newInterval[1] < intervals[0][0] {
+		return append([][]int{newInterval}, intervals...)
 	}
-	//fmt.Println(lowerInd)
-	if lowerInd >= 0 {
-		r0, _, flap := mergeInsert(newInterval, intervals[lowerInd])
-		if !flap {
-			res = append(res, r0)
-		} else {
-			newInterval = r0
+
+	if newInterval[0] > intervals[len(intervals)-1][1] {
+		return append(intervals, newInterval)
+	}
+
+	lb := lowerBound(intervals, newInterval)
+	//fmt.Println(lb)
+	res := make([][]int, 0, len(intervals)+1)
+	for i := lb; i >= 0; i-- {
+		a := newInterval
+		b := intervals[i]
+
+		if a[0] > b[0] {
+			a, b = b, a
 		}
-	}
-
-	//fmt.Println(res)
-	//fmt.Println(newInterval)
-	//fmt.Println("--wefewfwe")
-
-	ok := false
-	for i := lowerInd + 1; i < l; i++ {
-		newInterval, _, flap := mergeInsert(newInterval, intervals[i])
-
-		if !flap {
-			ok = true
-			res = append(res, newInterval)
-			res = append(res, intervals[i:]...)
+		if b[0] > a[1] {
+			res = append(res, intervals[:i+1]...)
+			//res = append(res, newInterval)
 			break
 		}
+
+		newInterval[0] = a[0]
+		newInterval[1] = max(a[1], b[1])
 	}
 
-	if !ok {
+	//fmt.Println("kkk ",res)
+	merged := false
+	for i := lb + 1; i < len(intervals); i++ {
+		a := newInterval
+		b := intervals[i]
+
+		if a[0] > b[0] {
+			a, b = b, a
+		}
+		if b[0] > a[1] {
+			//fmt.Println("innter ", newInterval)
+			res = append(res, newInterval)
+			res = append(res, intervals[i:]...)
+			merged = true
+			break
+		}
+
+		newInterval[0] = a[0]
+		newInterval[1] = max(a[1], b[1])
+	}
+
+	if !merged {
 		res = append(res, newInterval)
 	}
 
 	return res
 }
 
-func findBiggerBoundInsert(intervals [][]int, st int) int {
-	l := len(intervals)
-	if intervals[0][0] >= st {
-		if intervals[0][0] > st {
-			return -1
-		}
+func lowerBound(intervals [][]int, newInterval []int) int {
+
+	a := newInterval[0]
+
+	if a <= intervals[0][0] {
 		return 0
 	}
 
-	if st >= intervals[l-1][0] {
+	if a >= intervals[len(intervals)-1][0] {
+		return len(intervals) - 1
+	}
+
+	l, r := 0, len(intervals)-1
+
+	for l <= r {
+		if a >= intervals[r][0] {
+			return r
+		}
+
+		if a <= intervals[l][0] {
+			return l
+		}
+
+		mid := (r + l) / 2
+		if mid == r || mid == l {
+			break
+		}
+
+		if intervals[mid][0] > a {
+			r = mid
+			continue
+		}
+
+		l = mid
+	}
+
+	if l > r {
+		r, l = l, r
+	}
+
+	//fmt.Println(l,r)
+	if intervals[l][0] >= a {
+		if intervals[l][0] == a {
+			return l
+		}
 		return l - 1
 	}
 
-	left, right := 0, l-1
-	for left < right {
-		if intervals[left][0] == st {
-			return left
-		}
-
-		if intervals[right][0] == st {
-			return right
-		}
-
-		mid := (left + right) / 2
-		if intervals[mid][0] == st {
-			return mid
-		}
-
-		if mid == left || mid == right {
-			if intervals[left][0] == st {
-				return left
-			}
-
-			if intervals[right][0] == st {
-				return right
-			}
-
-			if intervals[left][0] <= st && intervals[right][1] >= st {
-				return left
-			}
-		}
-
-		if intervals[mid][0] > st {
-			right = mid
-			continue
-		}
-		left = mid + 1
-	}
-
-	for i := right; i >= 0; i-- {
-		if intervals[i][0] <= st {
-			return i
+	if intervals[r][0] <= a {
+		if intervals[l][0] == a {
+			return r
 		}
 	}
 
-	return 0
-}
-
-func mergeInsert(r0, r1 []int) ([]int, []int, bool) {
-	if r0[0] >= r1[0] {
-		r0, r1 = r1, r0
-	}
-
-	if r0[1] < r1[0] {
-		return r0, r1, false
-	}
-
-	r0[0] = min(r0[0], r1[0])
-	r0[1] = max(r0[1], r1[1])
-
-	return r0, nil, true
+	return r - 1
 }
